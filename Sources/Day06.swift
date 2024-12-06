@@ -3,12 +3,16 @@ import Foundation
 
 enum MapField: String {
     case obstruction = "#"
+    case newObstruction = "0"
     case guardUp = "^"
     case guardRight = ">"
     case guardDown = "v"
     case guardLeft = "<"
     case empty = "."
-    case visited = "%"
+    case visitedUp = "@"
+    case visitedRight = "$"
+    case visitedDown = "&"
+    case visitedLeft = "*"
 }
 
 extension MapField: CustomStringConvertible {
@@ -20,6 +24,8 @@ extension MapField: CustomStringConvertible {
 struct Map {
     var data: [[MapField]]
     var guardPosition: (Int, Int)?
+    var guardLoop = false
+    var previousGuardPositionValue: MapField?
 }
 
 extension Map: CustomStringConvertible {
@@ -39,39 +45,87 @@ extension Map {
         switch guardDirection {
         case .guardUp:
             nextGuardPosition.1 -= 1
-            if let tmp = data[safe: nextGuardPosition.1]?[safe: nextGuardPosition.0], tmp == .obstruction {
+            if let tmp = data[safe: nextGuardPosition.1]?[safe: nextGuardPosition.0], tmp == .obstruction || tmp == .newObstruction {
                 nextGuardPosition = guardPosition
                 nextGuardDirection = .guardRight
             }
+            if [.visitedUp, .visitedRight, .visitedDown, .visitedLeft].contains(previousGuardPositionValue) {
+                data[guardPosition.1][guardPosition.0] = previousGuardPositionValue!
+            } else {
+                data[guardPosition.1][guardPosition.0] = .visitedUp
+            }
         case .guardRight:
             nextGuardPosition.0 += 1
-            if let tmp = data[safe: nextGuardPosition.1]?[safe: nextGuardPosition.0], tmp == .obstruction {
+            if let tmp = data[safe: nextGuardPosition.1]?[safe: nextGuardPosition.0], tmp == .obstruction || tmp == .newObstruction {
                 nextGuardPosition = guardPosition
                 nextGuardDirection = .guardDown
             }
+            if [.visitedUp, .visitedRight, .visitedDown, .visitedLeft].contains(previousGuardPositionValue) {
+                data[guardPosition.1][guardPosition.0] = previousGuardPositionValue!
+            } else {
+                data[guardPosition.1][guardPosition.0] = .visitedRight
+            }
         case .guardDown:
             nextGuardPosition.1 += 1
-            if let tmp = data[safe: nextGuardPosition.1]?[safe: nextGuardPosition.0], tmp == .obstruction {
+            if let tmp = data[safe: nextGuardPosition.1]?[safe: nextGuardPosition.0], tmp == .obstruction || tmp == .newObstruction {
                 nextGuardPosition = guardPosition
                 nextGuardDirection = .guardLeft
             }
+            if [.visitedUp, .visitedRight, .visitedDown, .visitedLeft].contains(previousGuardPositionValue) {
+                data[guardPosition.1][guardPosition.0] = previousGuardPositionValue!
+            } else {
+                data[guardPosition.1][guardPosition.0] = .visitedDown
+            }
         case .guardLeft:
             nextGuardPosition.0 -= 1
-            if let tmp = data[safe: nextGuardPosition.1]?[safe: nextGuardPosition.0], tmp == .obstruction {
+            if let tmp = data[safe: nextGuardPosition.1]?[safe: nextGuardPosition.0], tmp == .obstruction || tmp == .newObstruction {
                 nextGuardPosition = guardPosition
                 nextGuardDirection = .guardUp
             }
+            if [.visitedUp, .visitedRight, .visitedDown, .visitedLeft].contains(previousGuardPositionValue) {
+                data[guardPosition.1][guardPosition.0] = previousGuardPositionValue!
+            } else {
+                data[guardPosition.1][guardPosition.0] = .visitedLeft
+            }
+        case .newObstruction:
+            break
         case .obstruction:
             break
         case .empty:
             break
-        case .visited:
+        case .visitedUp:
+            break
+        case .visitedRight:
+            break
+        case .visitedDown:
+            break
+        case .visitedLeft:
             break
         }
-        data[guardPosition.1][guardPosition.0] = .visited
         if data[safe: nextGuardPosition.1]?[safe: nextGuardPosition.0] == nil {
             self.guardPosition = nil
         } else {
+            switch nextGuardDirection {
+            case .guardUp:
+                if data[nextGuardPosition.1][nextGuardPosition.0] == .visitedUp {
+                    guardLoop = true
+                }
+            case .guardRight:
+                if data[nextGuardPosition.1][nextGuardPosition.0] == .visitedRight {
+                    guardLoop = true
+                }
+            case .guardDown:
+                if data[nextGuardPosition.1][nextGuardPosition.0] == .visitedDown {
+                    guardLoop = true
+                }
+            case .guardLeft:
+                if data[nextGuardPosition.1][nextGuardPosition.0] == .visitedLeft {
+                    guardLoop = true
+                }
+            default:
+                break
+            }
+            previousGuardPositionValue = data[nextGuardPosition.1][nextGuardPosition.0]
             data[nextGuardPosition.1][nextGuardPosition.0] = nextGuardDirection
             self.guardPosition = nextGuardPosition
         }
@@ -114,15 +168,36 @@ struct Day06: AdventDay {
 
     func part1() -> Int {
         var map = inputMap
-        print(map)
+        // print(map)
         while map.guardPosition != nil {
             map.nextRound()
-            print(map)
+            // print(map)
         }
-        return map.data.flatMap { $0 }.filter { $0 == .visited }.count
+        return map.data.flatMap { $0 }.filter { [.visitedUp, .visitedRight, .visitedDown, .visitedLeft].contains($0) }.count
     }
 
-    func part2() -> Any {
-        return 0
+    func part2() -> Int {
+        var firstMap = inputMap
+        while firstMap.guardPosition != nil {
+            firstMap.nextRound()
+        }
+        var count = 0
+        for (y, row) in firstMap.data.enumerated() {
+            for (x, value) in row.enumerated() {
+                if [.visitedUp, .visitedRight, .visitedDown, .visitedLeft].contains(value),
+                   let guardPosition = inputMap.guardPosition, guardPosition != (x, y)
+                {
+                    var map = inputMap
+                    map.data[y][x] = .newObstruction
+                    while map.guardPosition != nil && !map.guardLoop {
+                        map.nextRound()
+                    }
+                    if map.guardLoop {
+                        count += 1
+                    }
+                }
+            }
+        }
+        return count
     }
 }
