@@ -176,28 +176,39 @@ struct Day06: AdventDay {
         return map.data.flatMap { $0 }.filter { [.visitedUp, .visitedRight, .visitedDown, .visitedLeft].contains($0) }.count
     }
 
-    func part2() -> Int {
+    func part2() async -> Int {
         var firstMap = inputMap
         while firstMap.guardPosition != nil {
             firstMap.nextRound()
         }
+
         var count = 0
-        for (y, row) in firstMap.data.enumerated() {
-            for (x, value) in row.enumerated() {
-                if [.visitedUp, .visitedRight, .visitedDown, .visitedLeft].contains(value),
-                   let guardPosition = inputMap.guardPosition, guardPosition != (x, y)
-                {
-                    var map = inputMap
-                    map.data[y][x] = .newObstruction
-                    while map.guardPosition != nil && !map.guardLoop {
-                        map.nextRound()
-                    }
-                    if map.guardLoop {
-                        count += 1
+
+        await withTaskGroup(of: Bool.self) { group in
+            for (y, row) in firstMap.data.enumerated() {
+                for (x, value) in row.enumerated() {
+                    group.addTask {
+                        guard [.visitedUp, .visitedRight, .visitedDown, .visitedLeft].contains(value),
+                              let guardPosition = inputMap.guardPosition,
+                              guardPosition != (x, y) else { return false }
+
+                        var map = inputMap
+                        map.data[y][x] = .newObstruction
+
+                        while map.guardPosition != nil && !map.guardLoop {
+                            map.nextRound()
+                        }
+
+                        return map.guardLoop
                     }
                 }
             }
+
+            for await result in group where result {
+                count += 1
+            }
         }
+
         return count
     }
 }
