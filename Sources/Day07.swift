@@ -14,22 +14,17 @@ struct Day07: AdventDay {
         }
     }
 
-    func checkEquation(_ equation: Equation) -> Bool {
-        let operatorsVariations = getOperatorsVariation(length: equation.1.count - 1)
+    func checkEquation(_ equation: Equation, withOperators operators: [Operator]) -> Bool {
+        let operatorsVariations = variations(operators: operators, length: equation.1.count - 1)
         for operators in operatorsVariations
-            where checkEquation(equation, withOperators: operators)
+            where checkEquation(equation, withOperatorCombination: operators)
         {
             return true
         }
         return false
     }
 
-    func getOperatorsVariation(length: Int) -> [[Operator]] {
-        let operators: [Operator] = [(+), (*), { Int("\($0)\($1)")! }]
-        return variations(operators, length: length)
-    }
-
-    func variations(_ operators: [Operator], length: Int) -> [[Operator]] {
+    func variations(operators: [Operator], length: Int) -> [[Operator]] {
         guard !operators.isEmpty && length > 0 else { return [] }
 
         if length == 1 {
@@ -37,7 +32,7 @@ struct Day07: AdventDay {
         }
 
         var result = [[Operator]]()
-        let subVariations = variations(operators, length: length - 1)
+        let subVariations = variations(operators: operators, length: length - 1)
         for operatorVal in operators {
             result += subVariations.map { [operatorVal] + $0 }
         }
@@ -45,7 +40,7 @@ struct Day07: AdventDay {
         return result
     }
 
-    func checkEquation(_ equation: Equation, withOperators operators: [Operator]) -> Bool {
+    func checkEquation(_ equation: Equation, withOperatorCombination operators: [Operator]) -> Bool {
         var result = equation.1[0]
         for index in 0 ..< operators.count {
             result = operators[index](result, equation.1[index + 1])
@@ -55,13 +50,17 @@ struct Day07: AdventDay {
 
     func part1() -> Int {
         var result = 0
-        for equation in equations where checkEquation(equation) {
+        for equation in equations where checkEquation(equation, withOperators: [(+), (*)]) {
             result += equation.0
         }
         return result
     }
 
-    func part2() -> Any {
-        return 0
+    func part2() -> Int {
+        var result = 0
+        for equation in equations where checkEquation(equation, withOperators: [(+), (*), { Int("\($0)\($1)")! }]) {
+            result += equation.0
+        }
+        return result
     }
 }
