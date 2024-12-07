@@ -25,7 +25,7 @@ struct Day07: AdventDay {
     }
 
     func getOperatorsVariation(length: Int) -> [[Operator]] {
-        let operators: [Operator] = [(+), (*)]
+        let operators: [Operator] = [(+), (*), { Int("\($0)\($1)")! }]
         return variations(operators, length: length)
     }
 
