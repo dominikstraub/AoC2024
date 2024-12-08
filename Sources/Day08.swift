@@ -25,10 +25,10 @@ struct Day08: AdventDay {
 
     func getAntinodes(_ antennaA: Point, _ antennaB: Point) -> Set<Point> {
         var antinodes: Set<Point> = []
-        let distance = (x: antennaA.x - antennaB.x, y: antennaA.y - antennaB.y)
-        let antinodeNegA = Point(x: antennaA.x - distance.x, y: antennaA.y - distance.y)
+        let distance = antennaA - antennaB
+        let antinodeNegA = antennaA - distance
         if antinodeNegA == antennaB {
-            let antinodeNegB = Point(x: antennaB.x - distance.x, y: antennaB.y - distance.y)
+            let antinodeNegB = antennaB - distance
             if antinodeNegB.x >= 0, antinodeNegB.y >= 0, antinodeNegB.x < size.x, antinodeNegB.y < size.y {
                 antinodes.insert(antinodeNegB)
             }
@@ -38,9 +38,9 @@ struct Day08: AdventDay {
             }
         }
 
-        let antinodePosA = Point(x: antennaA.x + distance.x, y: antennaA.y + distance.y)
+        let antinodePosA = antennaA + distance
         if antinodePosA == antennaB {
-            let antinodePosB = Point(x: antennaB.x + distance.x, y: antennaB.y + distance.y)
+            let antinodePosB = antennaB + distance
             if antinodePosB.x >= 0, antinodePosB.y >= 0, antinodePosB.x < size.x, antinodePosB.y < size.y {
                 antinodes.insert(antinodePosB)
             }
@@ -57,10 +57,10 @@ struct Day08: AdventDay {
         var multiplier = 0
         while true {
             var antinodeFound = false
-            let distance = Point(x: antennaA.x - antennaB.x, y: antennaA.y - antennaB.y) * multiplier
-            let antinodeNegA = Point(x: antennaA.x - distance.x, y: antennaA.y - distance.y)
+            let distance = (antennaA - antennaB) * multiplier
+            let antinodeNegA = antennaA - distance
             if antinodeNegA == antennaB {
-                let antinodeNegB = Point(x: antennaB.x - distance.x, y: antennaB.y - distance.y)
+                let antinodeNegB = antennaB - distance
                 if antinodeNegB.x >= 0, antinodeNegB.y >= 0, antinodeNegB.x < size.x, antinodeNegB.y < size.y {
                     antinodes.insert(antinodeNegB)
                     antinodeFound = true
@@ -72,9 +72,9 @@ struct Day08: AdventDay {
                 }
             }
 
-            let antinodePosA = Point(x: antennaA.x + distance.x, y: antennaA.y + distance.y)
+            let antinodePosA = antennaA + distance
             if antinodePosA == antennaB {
-                let antinodePosB = Point(x: antennaB.x + distance.x, y: antennaB.y + distance.y)
+                let antinodePosB = antennaB + distance
                 if antinodePosB.x >= 0, antinodePosB.y >= 0, antinodePosB.x < size.x, antinodePosB.y < size.y {
                     antinodes.insert(antinodePosB)
                     antinodeFound = true
