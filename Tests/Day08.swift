@@ -3,8 +3,8 @@ import Testing
 @testable import AdventOfCode
 
 struct Day08Tests {
-    let testResult1 = 2
-    let testData1 = """
+    let testPart1Result1 = 2
+    let testPart1Data1 = """
     ..........
     ..........
     ..........
@@ -17,8 +17,8 @@ struct Day08Tests {
     ..........
 
     """
-    let testResult2 = 4
-    let testData2 = """
+    let testPart1Result2 = 4
+    let testPart1Data2 = """
     ..........
     ..........
     ..........
@@ -31,8 +31,8 @@ struct Day08Tests {
     ..........
 
     """
-    let testResult3 = 4
-    let testData3 = """
+    let testPart1Result3 = 4
+    let testPart1Data3 = """
     ..........
     ..........
     ..........
@@ -45,8 +45,9 @@ struct Day08Tests {
     ..........
 
     """
-    let testResult4 = 14
-    let testData4 = """
+    let testPart1Result = 14
+    let testPart2Result = 34
+    let testData = """
     ............
     ........0...
     .....0......
@@ -62,28 +63,48 @@ struct Day08Tests {
 
     """
 
+    let testPart2Result1 = 9
+    let testPart2Data1 = """
+    T.........
+    ...T......
+    .T........
+    ..........
+    ..........
+    ..........
+    ..........
+    ..........
+    ..........
+    ..........
+
+    """
+
     @Test func testPart1Input1() async throws {
-        let challenge = Day08(data: testData1)
-        #expect(challenge.part1() == testResult1)
+        let challenge = Day08(data: testPart1Data1)
+        #expect(challenge.part1() == testPart1Result1)
     }
 
     @Test func testPart1Input2() async throws {
-        let challenge = Day08(data: testData2)
-        #expect(challenge.part1() == testResult2)
+        let challenge = Day08(data: testPart1Data2)
+        #expect(challenge.part1() == testPart1Result2)
     }
 
     @Test func testPart1Input3() async throws {
-        let challenge = Day08(data: testData3)
-        #expect(challenge.part1() == testResult3)
+        let challenge = Day08(data: testPart1Data3)
+        #expect(challenge.part1() == testPart1Result3)
     }
 
     @Test func testPart1Input4() async throws {
-        let challenge = Day08(data: testData4)
-        #expect(challenge.part1() == testResult4)
+        let challenge = Day08(data: testData)
+        #expect(challenge.part1() == testPart1Result)
     }
 
-    @Test func testPart2() async throws {
-        let challenge = Day08(data: testData4)
-        #expect(String(describing: challenge.part2()) == "0")
+    @Test func testPart2Input1() async throws {
+        let challenge = Day08(data: testPart2Data1)
+        #expect(challenge.part2() == testPart2Result1)
+    }
+
+    @Test func testPart2Input2() async throws {
+        let challenge = Day08(data: testData)
+        #expect(challenge.part2() == testPart2Result)
     }
 }

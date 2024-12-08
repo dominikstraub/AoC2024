@@ -308,6 +308,52 @@ extension Point: Comparable {
     }
 }
 
+extension Point {
+    static func + (lhs: Point, rhs: Point) -> Point {
+        return Point(x: lhs.x + rhs.x, y: lhs.y + rhs.y)
+    }
+
+    static func - (lhs: Point, rhs: Point) -> Point {
+        return Point(x: lhs.x - rhs.x, y: lhs.y - rhs.y)
+    }
+
+    static func * (lhs: Point, rhs: Point) -> Point {
+        return Point(x: lhs.x * rhs.x, y: lhs.y * rhs.y)
+    }
+
+    static func / (lhs: Point, rhs: Point) -> Point {
+        return Point(x: lhs.x / rhs.x, y: lhs.y / rhs.y)
+    }
+
+    static prefix func - (point: Point) -> Point {
+        return Point(x: -point.x, y: -point.y)
+    }
+
+    static func + (lhs: Point, rhs: Int) -> Point {
+        return Point(x: lhs.x + rhs, y: lhs.y + rhs)
+    }
+
+    static func - (lhs: Point, rhs: Int) -> Point {
+        return Point(x: lhs.x - rhs, y: lhs.y - rhs)
+    }
+
+    static func * (lhs: Point, rhs: Int) -> Point {
+        return Point(x: lhs.x * rhs, y: lhs.y * rhs)
+    }
+
+    static func / (lhs: Point, rhs: Int) -> Point {
+        return Point(x: lhs.x / rhs, y: lhs.y / rhs)
+    }
+
+    static func + (lhs: Int, rhs: Point) -> Point {
+        return rhs + lhs
+    }
+
+    static func * (lhs: Int, rhs: Point) -> Point {
+        return rhs * lhs
+    }
+}
+
 public struct Point3D {
     public var x: Int
     public var y: Int
