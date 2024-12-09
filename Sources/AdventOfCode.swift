@@ -11,6 +11,7 @@ let allChallenges: [any AdventDay] = [
     Day06(),
     Day07(),
     Day08(),
+    Day09(),
 ]
 
 @main
@@ -443,5 +444,15 @@ extension Point3D: Equatable {
 extension Point3D: Comparable {
     public static func < (lhs: Point3D, rhs: Point3D) -> Bool {
         return lhs.x < rhs.x || lhs.y < rhs.y || lhs.z < rhs.z
+    }
+}
+
+public extension Int {
+    init?(_ description: Character) {
+        if let val = Int(String(description)) {
+            self = val
+        } else {
+            return nil
+        }
     }
 }
