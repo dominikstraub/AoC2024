@@ -56,10 +56,51 @@ struct Day09: AdventDay {
 
     func checksum(fileMap: [Int?]) -> Int {
         var result = 0
-        for (index, block) in fileMap.enumerated() {
+        for (index, block) in fileMap.enumerated() where block != nil {
             result += index * block!
         }
         return result
+    }
+
+    func sparsifyByFile(fileMap: [Int?]) -> [Int?] {
+        var result = fileMap
+        for fileId in (result[0]! + 1 ... result[result.count - 1]!).reversed() {
+            if let newValue = sparsifyByFileStep(fileMap: result, fileId: fileId) {
+                result = newValue
+                // printFileMap(fileMap: result)
+            }
+        }
+        return result
+    }
+
+    func sparsifyByFileStep(fileMap: [Int?], fileId: Int) -> [Int?]? {
+        var result = fileMap
+        var fileSize = 0
+        var fileStart = -1
+        for (index, block) in result.enumerated().reversed() where block == fileId {
+            fileSize += 1
+            fileStart = index
+        }
+        var space = 0
+        var start = 0
+        for (index, block) in result.enumerated() {
+            if block == nil {
+                space += 1
+                if space >= fileSize, index < fileStart {
+                    for fileIndex in 0 ..< fileSize {
+                        result[start + fileIndex] = fileId
+                    }
+                    for deleteIndex in 0 ..< fileSize {
+                        result[deleteIndex + fileStart] = nil
+                    }
+                    return result
+                }
+            } else {
+                space = 0
+                start = index + 1
+            }
+        }
+        return nil
     }
 
     func part1() -> Int {
@@ -73,7 +114,14 @@ struct Day09: AdventDay {
         return checksum
     }
 
-    func part2() -> Any {
-        return -1
+    func part2() -> Int {
+        // print(diskMap)
+        let fileMap = getFileMap(diskMap: diskMap)
+        // printFileMap(fileMap: fileMap)
+        let sparseFileMap = sparsifyByFile(fileMap: fileMap)
+        // printFileMap(fileMap: sparseFileMap)
+        let checksum = checksum(fileMap: sparseFileMap)
+        // print(checksum)
+        return checksum
     }
 }
