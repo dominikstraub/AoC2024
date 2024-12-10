@@ -13,7 +13,7 @@ struct Day10Tests {
 
             """,
             result1: 1,
-            result2: -1
+            result2: nil
         ), (
             input: """
             ...0...
@@ -26,7 +26,7 @@ struct Day10Tests {
 
             """,
             result1: 2,
-            result2: -1
+            result2: nil
         ), (
             input: """
             ..90..9
@@ -39,7 +39,7 @@ struct Day10Tests {
 
             """,
             result1: 4,
-            result2: -1
+            result2: nil
         ), (
             input: """
             10..9..
@@ -52,7 +52,7 @@ struct Day10Tests {
 
             """,
             result1: 3,
-            result2: -1
+            result2: nil
         ), (
             input: """
             89010123
@@ -66,7 +66,7 @@ struct Day10Tests {
 
             """,
             result1: 36,
-            result2: -1
+            result2: 81
         ),
     ]
 
@@ -80,7 +80,7 @@ struct Day10Tests {
     @Test func testPart2() async throws {
         for testDataEl in testData {
             let challenge = Day10(data: testDataEl.input)
-            #expect(challenge.part1() == testDataEl.result2)
+            #expect(testDataEl.result2 == nil || challenge.part2() == testDataEl.result2)
         }
     }
 }
