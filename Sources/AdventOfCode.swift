@@ -13,6 +13,7 @@ let allChallenges: [any AdventDay] = [
     Day08(),
     Day09(),
     Day10(),
+    Day11(),
 ]
 
 @main
@@ -290,6 +291,8 @@ extension Point: CustomStringConvertible {
         return "(\(x), \(y))"
     }
 }
+
+extension Point: Sendable {}
 
 extension Point: Hashable {
     public func hash(into hasher: inout Hasher) {
