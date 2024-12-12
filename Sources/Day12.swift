@@ -74,14 +74,89 @@ import Foundation
         return result
     }
 
+    func sides(_ regions: Set<Point>) -> Int {
+        var partOfSides: [Point: Int] = [:]
+        for point in regions {
+            let neighbours = findNeighbours(point, regions)
+            for point2 in neighbours {
+                if partOfSides[point2] == nil {
+                    partOfSides[point2] = 0
+                }
+                partOfSides[point2]! += 1
+            }
+        }
+        let regions = getRegions(Set(partOfSides.keys))
+        var sum = 0
+        for region in regions {
+            var max = 0
+            for point in region {
+                if max < partOfSides[point]! {
+                    max = partOfSides[point]!
+                }
+            }
+            sum += max
+        }
+        return sum
+    }
+
+    func findNeighbours(_ point: Point, _ garden: Set<Point>) -> Set<Point> {
+        var result: Set<Point> = [point]
+        for dir in directions {
+            let nextPoint = point + dir
+            if garden.contains(nextPoint) {
+                result.formUnion(findNeighbours(nextPoint, garden))
+            } else {
+                result.insert(nextPoint)
+            }
+        }
+        return result
+    }
+
+    func getRegions(_ garden: Set<Point>) -> Set<Set<Point>> {
+        visited = []
+        var result: Set<Set<Point>> = []
+        for point in garden {
+            if visited.contains(point) { continue }
+            result.insert(findSuroundingPlots(point, garden))
+        }
+        return result
+    }
+
+    func findSuroundingPlots(_ point: Point, _ garden: Set<Point>) -> Set<Point> {
+        if visited.contains(point) { return [] }
+        visited.insert(point)
+        var result: Set<Point> = [point]
+        for dir in directions {
+            let nextPoint = point + dir
+            if !garden.contains(nextPoint) { continue }
+            result.formUnion(findSuroundingPlots(nextPoint, garden))
+        }
+        return result
+    }
+
+    func perimeter(_ points: Set<Point>) -> [Point: Int] {
+        var result: [Point: Int] = [:]
+        for point in points {
+            for dir in directions {
+                let nextPoint = point + dir
+                if !points.contains(nextPoint) {
+                    result[nextPoint] = 0
+                }
+                result[nextPoint]! += 1
+            }
+        }
+        return result
+    }
+
     func part2() -> Int {
         let garden = getGarden()
         let regions = getRegions(garden)
         var result = 0
         for (_, regions2) in regions {
             for points in regions2 {
-                result += points.count * perimeter(points)
+                result += points.count * sides(points)
             }
         }
+        return result
     }
 }

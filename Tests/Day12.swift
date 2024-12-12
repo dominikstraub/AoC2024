@@ -25,7 +25,7 @@ struct Day12Tests {
 
             """,
             result1: 772,
-            result2: -1
+            result2: 436
         ),
         (
             input: """
