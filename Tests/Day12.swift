@@ -13,7 +13,7 @@ struct Day12Tests {
 
             """,
             result1: 140,
-            result2: -1
+            result2: 80
         ),
         (
             input: """
@@ -42,21 +42,48 @@ struct Day12Tests {
 
             """,
             result1: 1930,
-            result2: -1
+            result2: 1206
+        ),
+        (
+            input: """
+            EEEEE
+            EXXXX
+            EEEEE
+            EXXXX
+            EEEEE
+
+            """,
+            result1: -1,
+            result2: 236
+        ),
+        (
+            input: """
+            AAAAAA
+            AAABBA
+            AAABBA
+            ABBAAA
+            ABBAAA
+            AAAAAA
+
+            """,
+            result1: -1,
+            result2: 368
         ),
     ]
 
     @Test func testPart1() async throws {
         for testDataEl in testData {
+            if testDataEl.result1 == -1 { continue }
             let challenge = Day12(data: testDataEl.input)
             await #expect(challenge.part1() == testDataEl.result1)
         }
     }
 
-    // @Test func testPart2() async throws {
-    //     for testDataEl in testData {
-    //         let challenge = Day12(data: testDataEl.input)
-    //         #expect(testDataEl.result2 == nil || challenge.part2() == testDataEl.result2)
-    //     }
-    // }
+    @Test func testPart2() async throws {
+        for testDataEl in testData {
+            if testDataEl.result2 == -1 { continue }
+            let challenge = Day12(data: testDataEl.input)
+            await #expect(challenge.part2() == testDataEl.result2)
+        }
+    }
 }

@@ -65,22 +65,23 @@ import Foundation
     func part1() -> Int {
         let garden = getGarden()
         let regions = getRegions(garden)
-        // print(garden)
-        // print(regions)
         var result = 0
         for (_, regions2) in regions {
             for points in regions2 {
-                let area = points.count
-                let per = perimeter(points)
-                let price = area * per
-                // print("\(plot): \(area) * \(per) = \(price)")
-                result += price
+                result += points.count * perimeter(points)
             }
         }
         return result
     }
 
-    func part2() -> Any {
-        return -1
+    func part2() -> Int {
+        let garden = getGarden()
+        let regions = getRegions(garden)
+        var result = 0
+        for (_, regions2) in regions {
+            for points in regions2 {
+                result += points.count * perimeter(points)
+            }
+        }
     }
 }
