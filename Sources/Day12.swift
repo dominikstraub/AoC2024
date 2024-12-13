@@ -189,74 +189,72 @@ import Foundation
         printGarden(orderd)
     }
 
-    func sides(_ region: Set<Point>) -> Int {
+    func getSideCount(_ region: Set<Point>) -> Int {
         visited = []
-        var partOfSides: [Point: Int] = [:]
+        var allFences: Set<Point> = []
         for point in region {
-            let neighbours = findNeighbours(point, region)
-            print("point: \(point), neighbours:")
-            printGarden(neighbours)
-            for (point2, count) in neighbours {
-                if partOfSides[point2] == nil {
-                    partOfSides[point2] = 0
-                }
-                partOfSides[point2]! += count
-            }
+            let fences = findFences(point, region)
+            print("point: \(point), fences:")
+            printGarden(fences)
+            allFences.formUnion(fences)
         }
-        print("partOfSides:")
-        printGarden(partOfSides)
-        let regions = getRegions(Set(partOfSides.keys))
-        print("regions:")
-        printGarden(regions)
-        var sum = 0
-        for region in regions {
-            var max = 0
-            for point in region {
-                if max < partOfSides[point]! {
-                    max = partOfSides[point]!
-                }
-            }
-            sum += max
-        }
-        print("sides: \(sum)")
-        return sum
+        print("allFences:")
+        printGarden(allFences)
+        let sides = getSides(allFences)
+        print("sides:")
+        printGarden(sides)
+        print(sides.count)
+        return sides.count
     }
 
-    func findNeighbours(_ point: Point, _ garden: Set<Point>) -> [Point: Int] {
-        if visited.contains(point) { return [:] }
+    func findFences(_ point: Point, _ garden: Set<Point>) -> Set<Point> {
+        if visited.contains(point) { return [] }
         visited.insert(point)
-        var result: [Point: Int] = [:]
+        var result: Set<Point> = []
         for dir in directions {
             let nextPoint = point + dir
             if garden.contains(nextPoint) {
-                for (p, count) in findNeighbours(nextPoint, garden) {
-                    result[p] = (result[p] ?? 0) + count
-                }
+                result.formUnion(findFences(nextPoint, garden))
             } else {
-                result[nextPoint] = (result[nextPoint] ?? 0) + 1
+                let fence = (point * Point(2, 2)) + dir + Point(1, 1)
+                result.insert(fence)
             }
         }
         return result
     }
 
-    func getRegions(_ garden: Set<Point>) -> Set<Set<Point>> {
+    func getSides(_ fences: Set<Point>) -> Set<Set<Point>> {
         visited = []
         var result: Set<Set<Point>> = []
-        for point in garden {
-            result.insert(findSuroundingPlots(point, garden))
+        for fence in fences {
+            let sideParts = findSideParts(fence, fences)
+            if sideParts.count > 0 {
+                result.insert(sideParts)
+                print("side:")
+                printGarden(sideParts)
+            }
         }
         return result
     }
 
-    func findSuroundingPlots(_ point: Point, _ garden: Set<Point>) -> Set<Point> {
-        if visited.contains(point) { return [] }
-        visited.insert(point)
-        var result: Set<Point> = [point]
-        for dir in directions {
-            let nextPoint = point + dir
-            if !garden.contains(nextPoint) { continue }
-            result.formUnion(findSuroundingPlots(nextPoint, garden))
+    func findSideParts(_ fence: Point, _ fences: Set<Point>) -> Set<Point> {
+        if visited.contains(fence) { return [] }
+        visited.insert(fence)
+        var result: Set<Point> = [fence]
+        if fence.y % 2 == 0 {
+            for dir in directions.filter({ $0.y == 0 }) {
+                let nextFence = fence + (dir * Point(2, 2))
+                if !fences.contains(nextFence) { continue }
+                result.formUnion(findSideParts(nextFence, fences))
+            }
+        } else {
+            for dir in directions.filter({ $0.x == 0 }) {
+                let nextFence = fence + (dir * Point(2, 2))
+                if !fences.contains(nextFence) { continue }
+                result.formUnion(findSideParts(nextFence, fences))
+            }
         }
+
         return result
     }
 
@@ -286,7 +284,7 @@ import Foundation
             for points in regions2 {
                 print("plot: \(plot), points:")
                 printGarden(points, plot)
-                result += points.count * sides(points)
+                result += points.count * getSideCount(points)
             }
         }
         return result
