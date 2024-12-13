@@ -74,18 +74,140 @@ import Foundation
         return result
     }
 
-    func sides(_ regions: Set<Point>) -> Int {
+    // part2 #####################
+
+    func printGarden(_ garden: [[String]]) {
+        for row in garden {
+            for plot in row {
+                print(plot, terminator: "")
+            }
+            print("", terminator: "\n")
+        }
+    }
+
+    func printGarden<T>(_ garden: Set<Point>, _ plot: T = "X") {
+        var orderd: [[String]] = []
+        var offsetY = 0
+        var offsetX = 0
+        for point in garden {
+            if point.y < 0, offsetY < abs(point.y) {
+                let newOffsetY = abs(point.y)
+                for _ in 0 ..< newOffsetY - offsetY {
+                    orderd.insert([], at: 0)
+                }
+                offsetY = newOffsetY
+            }
+            let y = point.y + offsetY
+            while orderd.count <= y {
+                orderd.append([])
+            }
+            if point.x < 0, offsetX < abs(point.x) {
+                let newOffsetX = abs(point.x)
+                for _ in 0 ..< newOffsetX - offsetX {
+                    for currentY in 0 ..< orderd.count {
+                        orderd[currentY].insert(" ", at: 0)
+                    }
+                }
+                offsetX = newOffsetX
+            }
+            let x = point.x + offsetX
+            while orderd[y].count <= x {
+                orderd[y].append(" ")
+            }
+            orderd[y][x] = "\(plot)"
+        }
+        printGarden(orderd)
+    }
+
+    func printGarden<T>(_ garden: Set<Set<Point>>, _ plot: T = "X") {
+        var orderd: [[String]] = []
+        var offsetY = 0
+        var offsetX = 0
+        for region in garden {
+            for point in region {
+                if point.y < 0, offsetY < abs(point.y) {
+                    let newOffsetY = abs(point.y)
+                    for _ in 0 ..< newOffsetY - offsetY {
+                        orderd.insert([], at: 0)
+                    }
+                    offsetY = newOffsetY
+                }
+                let y = point.y + offsetY
+                while orderd.count <= y {
+                    orderd.append([])
+                }
+                if point.x < 0, offsetX < abs(point.x) {
+                    let newOffsetX = abs(point.x)
+                    for _ in 0 ..< newOffsetX - offsetX {
+                        for currentY in 0 ..< orderd.count {
+                            orderd[currentY].insert(" ", at: 0)
+                        }
+                    }
+                    offsetX = newOffsetX
+                }
+                let x = point.x + offsetX
+                while orderd[y].count <= x {
+                    orderd[y].append(" ")
+                }
+                orderd[y][x] = "\(plot)"
+            }
+        }
+        printGarden(orderd)
+    }
+
+    func printGarden<T>(_ garden: [Point: T]) {
+        var orderd: [[String]] = []
+        var offsetY = 0
+        var offsetX = 0
+        for (point, value) in garden {
+            if point.y < 0, offsetY < abs(point.y) {
+                let newOffsetY = abs(point.y)
+                for _ in 0 ..< newOffsetY - offsetY {
+                    orderd.insert([], at: 0)
+                }
+                offsetY = newOffsetY
+            }
+            let y = point.y + offsetY
+            while orderd.count <= y {
+                orderd.append([])
+            }
+            if point.x < 0, offsetX < abs(point.x) {
+                let newOffsetX = abs(point.x)
+                for _ in 0 ..< newOffsetX - offsetX {
+                    for currentY in 0 ..< orderd.count {
+                        orderd[currentY].insert(" ", at: 0)
+                    }
+                }
+                offsetX = newOffsetX
+            }
+            let x = point.x + offsetX
+            while orderd[y].count <= x {
+                orderd[y].append(" ")
+            }
+            orderd[y][x] = "\(value)"
+        }
+        printGarden(orderd)
+    }
+
+    func sides(_ region: Set<Point>) -> Int {
+        visited = []
         var partOfSides: [Point: Int] = [:]
-        for point in regions {
-            let neighbours = findNeighbours(point, regions)
-            for point2 in neighbours {
+        for point in region {
+            let neighbours = findNeighbours(point, region)
+            print("point: \(point), neighbours:")
+            printGarden(neighbours)
+            for (point2, count) in neighbours {
                 if partOfSides[point2] == nil {
                     partOfSides[point2] = 0
                 }
-                partOfSides[point2]! += 1
+                partOfSides[point2]! += count
             }
         }
+        print("partOfSides:")
+        printGarden(partOfSides)
         let regions = getRegions(Set(partOfSides.keys))
+        print("regions:")
+        printGarden(regions)
         var sum = 0
         for region in regions {
             var max = 0
@@ -96,17 +218,22 @@ import Foundation
             }
             sum += max
         }
+        print("sides: \(sum)")
         return sum
     }
 
-    func findNeighbours(_ point: Point, _ garden: Set<Point>) -> Set<Point> {
-        var result: Set<Point> = [point]
+    func findNeighbours(_ point: Point, _ garden: Set<Point>) -> [Point: Int] {
+        if visited.contains(point) { return [:] }
+        visited.insert(point)
+        var result: [Point: Int] = [:]
         for dir in directions {
             let nextPoint = point + dir
             if garden.contains(nextPoint) {
-                result.formUnion(findNeighbours(nextPoint, garden))
+                for (p, count) in findNeighbours(nextPoint, garden) {
+                    result[p] = (result[p] ?? 0) + count
+                }
             } else {
-                result.insert(nextPoint)
+                result[nextPoint] = (result[nextPoint] ?? 0) + 1
             }
         }
         return result
@@ -116,7 +243,6 @@ import Foundation
         visited = []
         var result: Set<Set<Point>> = []
         for point in garden {
-            if visited.contains(point) { continue }
             result.insert(findSuroundingPlots(point, garden))
         }
         return result
@@ -150,10 +276,16 @@ import Foundation
 
     func part2() -> Int {
         let garden = getGarden()
+        print("garden:")
+        printGarden(garden)
         let regions = getRegions(garden)
         var result = 0
-        for (_, regions2) in regions {
+        for (plot, regions2) in regions {
+            print("plot: \(plot), regions2:")
+            printGarden(regions2, plot)
             for points in regions2 {
+                print("plot: \(plot), points:")
+                printGarden(points, plot)
                 result += points.count * sides(points)
             }
         }
