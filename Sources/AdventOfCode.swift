@@ -360,6 +360,16 @@ extension Point {
     }
 }
 
+extension Point {
+    var rotatedClock90: Point {
+        return Point(-y, x)
+    }
+
+    var rotatedCounterClock90: Point {
+        return Point(y, -x)
+    }
+}
+
 public struct Point3D {
     public var x: Int
     public var y: Int

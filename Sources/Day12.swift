@@ -194,16 +194,16 @@ import Foundation
         var allFences: Set<Point> = []
         for point in region {
             let fences = findFences(point, region)
-            print("point: \(point), fences:")
+            // print("point: \(point), fences:")
             printGarden(fences)
             allFences.formUnion(fences)
         }
-        print("allFences:")
+        // print("allFences:")
         printGarden(allFences)
         let sides = getSides(allFences)
-        print("sides:")
+        // print("sides:")
         printGarden(sides)
-        print(sides.count)
+        // print(sides.count)
         return sides.count
     }
 
@@ -223,35 +223,41 @@ import Foundation
         return result
     }
 
-    func getSides(_ fences: Set<Point>) -> Set<Set<Point>> {
+    func getSides(_ allFences: Set<Point>) -> Set<Set<Point>> {
         visited = []
         var result: Set<Set<Point>> = []
-        for fence in fences {
-            let sideParts = findSideParts(fence, fences)
+        for fence in allFences {
+            let sideParts = findSideParts(fence, allFences)
             if sideParts.count > 0 {
                 result.insert(sideParts)
-                print("side:")
+                // print("side:")
                 printGarden(sideParts)
             }
         }
         return result
     }
 
-    func findSideParts(_ fence: Point, _ fences: Set<Point>) -> Set<Point> {
+    func findSideParts(_ fence: Point, _ allFences: Set<Point>) -> Set<Point> {
         if visited.contains(fence) { return [] }
         visited.insert(fence)
         var result: Set<Point> = [fence]
         if fence.y % 2 == 0 {
             for dir in directions.filter({ $0.y == 0 }) {
                 let nextFence = fence + (dir * Point(2, 2))
-                if !fences.contains(nextFence) { continue }
-                result.formUnion(findSideParts(nextFence, fences))
+                if !allFences.contains(nextFence) { continue }
+                let perpFence1 = fence + (dir + dir.rotatedClock90)
+                let perpFence2 = fence + (dir + dir.rotatedCounterClock90)
+                if allFences.contains(perpFence1), allFences.contains(perpFence2) { continue }
+                result.formUnion(findSideParts(nextFence, allFences))
             }
         } else {
             for dir in directions.filter({ $0.x == 0 }) {
                 let nextFence = fence + (dir * Point(2, 2))
-                if !fences.contains(nextFence) { continue }
-                result.formUnion(findSideParts(nextFence, fences))
+                if !allFences.contains(nextFence) { continue }
+                let perpFence1 = fence + (dir + dir.rotatedClock90)
+                let perpFence2 = fence + (dir + dir.rotatedCounterClock90)
+                if allFences.contains(perpFence1), allFences.contains(perpFence2) { continue }
+                result.formUnion(findSideParts(nextFence, allFences))
             }
         }
 
@@ -274,15 +280,15 @@ import Foundation
 
     func part2() -> Int {
         let garden = getGarden()
-        print("garden:")
+        // print("garden:")
         printGarden(garden)
         let regions = getRegions(garden)
         var result = 0
         for (plot, regions2) in regions {
-            print("plot: \(plot), regions2:")
+            // print("plot: \(plot), regions2:")
             printGarden(regions2, plot)
             for points in regions2 {
-                print("plot: \(plot), points:")
+                // print("plot: \(plot), points:")
                 printGarden(points, plot)
                 result += points.count * getSideCount(points)
             }
