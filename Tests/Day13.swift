@@ -2,27 +2,28 @@ import Testing
 
 @testable import AdventOfCode
 
-struct Day00Tests {
+struct Day13Tests {
     let testData = [
         (
             input: """
-            1000
-            2000
-            3000
+            Button A: X+94, Y+34
+            Button B: X+22, Y+67
+            Prize: X=8400, Y=5400
 
-            4000
+            Button A: X+26, Y+66
+            Button B: X+67, Y+21
+            Prize: X=12748, Y=12176
 
-            5000
-            6000
+            Button A: X+17, Y+86
+            Button B: X+84, Y+37
+            Prize: X=7870, Y=6450
 
-            7000
-            8000
-            9000
-
-            10000
+            Button A: X+69, Y+23
+            Button B: X+27, Y+71
+            Prize: X=18641, Y=10279
 
             """,
-            result1: -1,
+            result1: 480,
             result2: -1
         ),
     ]

@@ -1,7 +1,7 @@
 import Algorithms
 import Foundation
 
-struct Day00: AdventDay {
+struct Day15: AdventDay {
     var data: String
 
     var entities: [[Int]] {
