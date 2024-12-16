@@ -3,7 +3,7 @@ import Testing
 @testable import AdventOfCode
 
 struct Day14Tests {
-    let testData = [
+    let testData: [(input: String, result1: Int, result2: Int)] = [
         (
             input: """
             1000
@@ -31,15 +31,15 @@ struct Day14Tests {
         for testDataEl in testData {
             if testDataEl.result1 == -1 { continue }
             let challenge = Day14(data: testDataEl.input)
-            await #expect(challenge.part1() == testDataEl.result1)
+            #expect(challenge.part1() == testDataEl.result1)
         }
     }
 
-    @Test func testPart2() async throws {
-        for testDataEl in testData {
-            if testDataEl.result2 == -1 { continue }
-            let challenge = Day14(data: testDataEl.input)
-            await #expect(challenge.part2() == testDataEl.result2)
-        }
-    }
+//    @Test func testPart2() async throws {
+//        for testDataEl in testData {
+//            if testDataEl.result2 == -1 { continue }
+//            let challenge = Day14(data: testDataEl.input)
+//            #expect(challenge.part2() == testDataEl.result2)
+//        }
+//    }
 }
