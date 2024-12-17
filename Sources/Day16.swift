@@ -60,20 +60,6 @@ typealias FieldMap = [Point: Field]
             let nextPoint = nextValues[0]
             let nextDir = nextValues[1]
             let currentDir = nextValues[2]
-            guard let currentPoints = lowestPoints[nextValues] else {
-                continue
-            }
-
-            var nextPoints = currentPoints + 1
-            if nextDir != currentDir {
-                nextPoints += 1000
-                if nextDir * -1 == currentDir {
-                    nextPoints += 1000
-                }
-            }
-            if lowestPoints[[nextPoint, nextDir, currentDir]] ?? Int.max > nextPoints {
-                lowestPoints[[nextPoint, nextDir, currentDir]] = nextPoints
-            }
             visitField(nextPoint, direction: nextDir, map: map)
         }
     }
@@ -84,6 +70,21 @@ typealias FieldMap = [Point: Field]
             let nextField = map[nextPoint]
             if nextField == nil || nextField == .wall { continue }
             pointsToVisit.insert([nextPoint, dir, direction])
+
+            guard let currentPoints = lowestPoints[[point, direction]] else {
+                continue
+            }
+
+            var nextPoints = currentPoints + 1
+            if direction != pastDirection {
+                nextPoints += 1000
+                if direction * -1 == pastDirection {
+                    nextPoints += 1000
+                }
+            }
+            if lowestPoints[[nextPoint, direction]] ?? Int.max > nextPoints {
+                lowestPoints[[nextPoint, direction]] = nextPoints
+            }
         }
     }
 
@@ -106,7 +107,7 @@ typealias FieldMap = [Point: Field]
         guard let endPoint else { return -1 }
         // visitField(startPoint, direction: Point(1, 0), points: 0, map: map)
         pointsToVisit.insert([startPoint, Point(1, 0), Point(1, 0)])
-        lowestPoints[[startPoint, Point(1, 0), Point(1, 0)]] = 0
+        lowestPoints[[startPoint, Point(1, 0)]] = 0
         checkFields(map: map)
         // printMap(lowestPoints, emptyValue: 0)
         return directions.map {
