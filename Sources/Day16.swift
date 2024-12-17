@@ -16,8 +16,8 @@ extension Field: CustomStringConvertible {
 
 typealias FieldMap = [Point: Field]
 
-// @MainActor var visitedFields: Set<Point> = []
-@MainActor var lowestPoints: [Point: Int] = [:]
+@MainActor var pointsToVisit: Set<[Point]> = []
+@MainActor var lowestPoints: [[Point]: Int] = [:]
 
 @MainActor struct Day16: AdventDay {
     nonisolated init(data: String) {
@@ -54,29 +54,41 @@ typealias FieldMap = [Point: Field]
         return result
     }
 
-    func visitField(_ point: Point, direction: Point, points: Int, map: FieldMap) {
-        // visitedFields.insert(point)
-        if lowestPoints[point] ?? Int.max > points {
-            lowestPoints[point] = points
-        }
-        for dir in directions {
-            let nextPoint = point + dir
-            // if visitedFields.contains(nextPoint) { continue }
-            let nextField = map[nextPoint]
-            if nextField == nil || nextField == .wall { continue }
-            var nextPoints = points + 1
-            if dir != direction {
+    func checkFields(map: FieldMap) {
+        while !pointsToVisit.isEmpty {
+            let nextValues = pointsToVisit.removeFirst()
+            let nextPoint = nextValues[0]
+            let nextDir = nextValues[1]
+            let currentDir = nextValues[2]
+            guard let currentPoints = lowestPoints[nextValues] else {
+                continue
+            }
+
+            var nextPoints = currentPoints + 1
+            if nextDir != currentDir {
                 nextPoints += 1000
-                if dir * -1 == direction {
+                if nextDir * -1 == currentDir {
                     nextPoints += 1000
                 }
             }
-            visitField(nextPoint, direction: dir, points: nextPoints, map: map)
+            if lowestPoints[[nextPoint, nextDir, currentDir]] ?? Int.max > nextPoints {
+                lowestPoints[[nextPoint, nextDir, currentDir]] = nextPoints
+            }
+            visitField(nextPoint, direction: nextDir, map: map)
+        }
+    }
+
+    func visitField(_ point: Point, direction: Point, map: FieldMap) {
+        for dir in directions {
+            let nextPoint = point + dir
+            let nextField = map[nextPoint]
+            if nextField == nil || nextField == .wall { continue }
+            pointsToVisit.insert([nextPoint, dir, direction])
         }
     }
 
     func part1() -> Int {
-        // visitedFields = []
+        pointsToVisit = []
         lowestPoints = [:]
         let map = getMap()
         printMap(map, emptyValue: .empty)
@@ -92,9 +104,14 @@ typealias FieldMap = [Point: Field]
         }
         guard let startPoint else { return -1 }
         guard let endPoint else { return -1 }
-        visitField(startPoint, direction: Point(1, 0), points: 0, map: map)
-        printMap(lowestPoints, emptyValue: 0)
-        return lowestPoints[endPoint] ?? -1
+        // visitField(startPoint, direction: Point(1, 0), points: 0, map: map)
+        pointsToVisit.insert([startPoint, Point(1, 0), Point(1, 0)])
+        lowestPoints[[startPoint, Point(1, 0), Point(1, 0)]] = 0
+        checkFields(map: map)
+        // printMap(lowestPoints, emptyValue: 0)
+        return directions.map {
+            lowestPoints[[endPoint, $0]] ?? Int.max
+        }.min() ?? -1
     }
 
     func part2() -> Any {
