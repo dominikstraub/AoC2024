@@ -518,3 +518,37 @@ func printMap<T>(_ map: [Point: T], emptyValue: T) {
     }
     printArray2D(orderd)
 }
+
+func printSet(_ map: Set<Point>, value: String, emptyValue: String = " ") {
+    var orderd: [[String]] = []
+    var offsetY = 0
+    var offsetX = 0
+    for point in map {
+        if point.y < 0, offsetY < abs(point.y) {
+            let newOffsetY = abs(point.y)
+            for _ in 0 ..< newOffsetY - offsetY {
+                orderd.insert([], at: 0)
+            }
+            offsetY = newOffsetY
+        }
+        let y = point.y + offsetY
+        while orderd.count <= y {
+            orderd.append([])
+        }
+        if point.x < 0, offsetX < abs(point.x) {
+            let newOffsetX = abs(point.x)
+            for _ in 0 ..< newOffsetX - offsetX {
+                for currentY in 0 ..< orderd.count {
+                    orderd[currentY].insert(emptyValue, at: 0)
+                }
+            }
+            offsetX = newOffsetX
+        }
+        let x = point.x + offsetX
+        while orderd[y].count <= x {
+            orderd[y].append(emptyValue)
+        }
+        orderd[y][x] = value
+    }
+    printArray2D(orderd)
+}

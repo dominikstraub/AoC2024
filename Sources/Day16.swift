@@ -17,7 +17,7 @@ extension Field: CustomStringConvertible {
 typealias FieldMap = [Point: Field]
 
 @MainActor var pointsToVisit: Set<[Point]> = []
-@MainActor var lowestPoints: [[Point]: Int] = [:]
+@MainActor var lowestScore: [[Point]: (Int, Set<Point>)] = [:]
 @MainActor var map: FieldMap = [:]
 
 @MainActor struct Day16: AdventDay {
@@ -64,27 +64,42 @@ typealias FieldMap = [Point: Field]
     }
 
     func visitField(atPoint currentPoint: Point) {
-        // printMap2(lowestPoints, emptyValue: "#")
+        // printMap2(lowestScore, emptyValue: "#")
         for currentDirection in directions {
             for nextDirection in directions {
                 let nextPoint = currentPoint + nextDirection
                 let nextField = map[nextPoint]
                 if nextField == nil || nextField == .wall { continue }
 
-                guard let currentPoints = lowestPoints[[currentPoint, currentDirection]] else {
+                guard let currentValue = lowestScore[[currentPoint, currentDirection]] else {
                     continue
                 }
-
-                var nextPoints = currentPoints + 1
+                let currentScore = currentValue.0
+                var nextScore = currentScore + 1
                 if nextDirection != currentDirection {
-                    nextPoints += 1000
+                    nextScore += 1000
                     if nextDirection * -1 == currentDirection {
-                        nextPoints += 1000
+                        nextScore += 1000
                     }
                 }
-                if lowestPoints[[nextPoint, nextDirection]] ?? Int.max > nextPoints {
-                    lowestPoints[[nextPoint, nextDirection]] = nextPoints
+
+                let currentBestPoints = currentValue.1
+                var nextBestPoints = currentBestPoints
+                nextBestPoints.insert(nextPoint)
+
+                let currentLowestValues = lowestScore[[nextPoint, nextDirection]]
+                let currentLowestScore = currentLowestValues?.0 ?? Int.max
+                let currentLowestPoints = currentLowestValues?.1 ?? []
+                if nextScore < currentLowestScore {
+                    lowestScore[[nextPoint, nextDirection]] = (nextScore, nextBestPoints)
                     pointsToVisit.insert([nextPoint, nextDirection])
+                } else if nextScore == currentLowestScore {
+                    let count = currentLowestPoints.count
+                    nextBestPoints.formUnion(currentLowestPoints)
+                    lowestScore[[nextPoint, nextDirection]] = (nextScore, nextBestPoints)
+                    if nextBestPoints.count > count {
+                        pointsToVisit.insert([nextPoint, nextDirection])
+                    }
                 }
             }
         }
@@ -92,7 +107,7 @@ typealias FieldMap = [Point: Field]
 
     func part1() -> Int {
         pointsToVisit = []
-        lowestPoints = [:]
+        lowestScore = [:]
         map = getMap()
         // printMap(map, emptyValue: .empty)
         var startPoint: Point?
@@ -108,12 +123,12 @@ typealias FieldMap = [Point: Field]
         guard let startPoint else { return -1 }
         guard let endPoint else { return -1 }
         let startDirection = Point(1, 0)
-        lowestPoints[[startPoint, startDirection]] = 0
+        lowestScore[[startPoint, startDirection]] = (0, [startPoint])
         pointsToVisit.insert([startPoint, startDirection])
         checkFields()
-        // printMap2(lowestPoints, emptyValue: "#")
+        // printMap2(lowestScore, emptyValue: "#")
         return directions.map {
-            lowestPoints[[endPoint, $0]] ?? Int.max
+            lowestScore[[endPoint, $0]]?.0 ?? Int.max
         }.min() ?? -1
     }
 
@@ -156,7 +171,39 @@ typealias FieldMap = [Point: Field]
         }
     }
 
-    func part2() -> Any {
-        return -1
+    func part2() -> Int {
+        pointsToVisit = []
+        lowestScore = [:]
+        map = getMap()
+        // printMap(map, emptyValue: .empty)
+        var startPoint: Point?
+        var endPoint: Point?
+        for (point, field) in map {
+            if field == .start {
+                startPoint = point
+            }
+            if field == .end {
+                endPoint = point
+            }
+        }
+        guard let startPoint else { return -1 }
+        guard let endPoint else { return -1 }
+        let startDirection = Point(1, 0)
+        lowestScore[[startPoint, startDirection]] = (0, [startPoint])
+        pointsToVisit.insert([startPoint, startDirection])
+        checkFields()
+        // printMap2(lowestScore, emptyValue: "#")
+        var totalScore = Int.max
+        var totalPoints: Set<Point> = []
+        for dir in directions {
+            if let values = lowestScore[[endPoint, dir]] {
+                if values.0 <= totalScore {
+                    totalScore = values.0
+                    totalPoints.formUnion(values.1)
+                }
+            }
+        }
+        printSet(totalPoints, value: "O")
+        return totalPoints.count
     }
 }
