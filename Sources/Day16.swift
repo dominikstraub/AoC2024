@@ -59,32 +59,33 @@ typealias FieldMap = [Point: Field]
         while !pointsToVisit.isEmpty {
             let nextValues = pointsToVisit.removeFirst()
             let nextPoint = nextValues[0]
-            let nextDirection = nextValues[1]
-            visitField(atPoint: nextPoint, inDirection: nextDirection)
+            visitField(atPoint: nextPoint)
         }
     }
 
-    func visitField(atPoint currentPoint: Point, inDirection currentDirection: Point) {
+    func visitField(atPoint currentPoint: Point) {
         // printMap2(lowestPoints, emptyValue: "#")
-        for nextDirection in directions {
-            let nextPoint = currentPoint + nextDirection
-            let nextField = map[nextPoint]
-            if nextField == nil || nextField == .wall { continue }
-            pointsToVisit.insert([nextPoint, nextDirection])
+        for currentDirection in directions {
+            for nextDirection in directions {
+                let nextPoint = currentPoint + nextDirection
+                let nextField = map[nextPoint]
+                if nextField == nil || nextField == .wall { continue }
 
-            guard let currentPoints = lowestPoints[[currentPoint, currentDirection]] else {
-                continue
-            }
-
-            var nextPoints = currentPoints + 1
-            if nextDirection != currentDirection {
-                nextPoints += 1000
-                if nextDirection * -1 == currentDirection {
-                    nextPoints += 1000
+                guard let currentPoints = lowestPoints[[currentPoint, currentDirection]] else {
+                    continue
                 }
-            }
-            if lowestPoints[[nextPoint, nextDirection]] ?? Int.max > nextPoints {
-                lowestPoints[[nextPoint, nextDirection]] = nextPoints
+
+                var nextPoints = currentPoints + 1
+                if nextDirection != currentDirection {
+                    nextPoints += 1000
+                    if nextDirection * -1 == currentDirection {
+                        nextPoints += 1000
+                    }
+                }
+                if lowestPoints[[nextPoint, nextDirection]] ?? Int.max > nextPoints {
+                    lowestPoints[[nextPoint, nextDirection]] = nextPoints
+                    pointsToVisit.insert([nextPoint, nextDirection])
+                }
             }
         }
     }
@@ -93,7 +94,7 @@ typealias FieldMap = [Point: Field]
         pointsToVisit = []
         lowestPoints = [:]
         map = getMap()
-        printMap(map, emptyValue: .empty)
+        // printMap(map, emptyValue: .empty)
         var startPoint: Point?
         var endPoint: Point?
         for (point, field) in map {
@@ -110,7 +111,7 @@ typealias FieldMap = [Point: Field]
         lowestPoints[[startPoint, startDirection]] = 0
         pointsToVisit.insert([startPoint, startDirection])
         checkFields()
-        printMap2(lowestPoints, emptyValue: "#")
+        // printMap2(lowestPoints, emptyValue: "#")
         return directions.map {
             lowestPoints[[endPoint, $0]] ?? Int.max
         }.min() ?? -1
