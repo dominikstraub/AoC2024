@@ -18,6 +18,7 @@ typealias FieldMap = [Point: Field]
 
 @MainActor var pointsToVisit: Set<[Point]> = []
 @MainActor var lowestPoints: [[Point]: Int] = [:]
+@MainActor var map: FieldMap = [:]
 
 @MainActor struct Day16: AdventDay {
     nonisolated init(data: String) {
@@ -54,36 +55,36 @@ typealias FieldMap = [Point: Field]
         return result
     }
 
-    func checkFields(map: FieldMap) {
+    func checkFields() {
         while !pointsToVisit.isEmpty {
             let nextValues = pointsToVisit.removeFirst()
             let nextPoint = nextValues[0]
-            let nextDir = nextValues[1]
-            let currentDir = nextValues[2]
-            visitField(nextPoint, direction: nextDir, map: map)
+            let nextDirection = nextValues[1]
+            visitField(atPoint: nextPoint, inDirection: nextDirection)
         }
     }
 
-    func visitField(_ point: Point, direction: Point, map: FieldMap) {
-        for dir in directions {
-            let nextPoint = point + dir
+    func visitField(atPoint currentPoint: Point, inDirection currentDirection: Point) {
+        // printMap2(lowestPoints, emptyValue: "#")
+        for nextDirection in directions {
+            let nextPoint = currentPoint + nextDirection
             let nextField = map[nextPoint]
             if nextField == nil || nextField == .wall { continue }
-            pointsToVisit.insert([nextPoint, dir, direction])
+            pointsToVisit.insert([nextPoint, nextDirection])
 
-            guard let currentPoints = lowestPoints[[point, direction]] else {
+            guard let currentPoints = lowestPoints[[currentPoint, currentDirection]] else {
                 continue
             }
 
             var nextPoints = currentPoints + 1
-            if direction != pastDirection {
+            if nextDirection != currentDirection {
                 nextPoints += 1000
-                if direction * -1 == pastDirection {
+                if nextDirection * -1 == currentDirection {
                     nextPoints += 1000
                 }
             }
-            if lowestPoints[[nextPoint, direction]] ?? Int.max > nextPoints {
-                lowestPoints[[nextPoint, direction]] = nextPoints
+            if lowestPoints[[nextPoint, nextDirection]] ?? Int.max > nextPoints {
+                lowestPoints[[nextPoint, nextDirection]] = nextPoints
             }
         }
     }
@@ -91,7 +92,7 @@ typealias FieldMap = [Point: Field]
     func part1() -> Int {
         pointsToVisit = []
         lowestPoints = [:]
-        let map = getMap()
+        map = getMap()
         printMap(map, emptyValue: .empty)
         var startPoint: Point?
         var endPoint: Point?
@@ -105,14 +106,53 @@ typealias FieldMap = [Point: Field]
         }
         guard let startPoint else { return -1 }
         guard let endPoint else { return -1 }
-        // visitField(startPoint, direction: Point(1, 0), points: 0, map: map)
-        pointsToVisit.insert([startPoint, Point(1, 0), Point(1, 0)])
-        lowestPoints[[startPoint, Point(1, 0)]] = 0
-        checkFields(map: map)
-        // printMap(lowestPoints, emptyValue: 0)
+        let startDirection = Point(1, 0)
+        lowestPoints[[startPoint, startDirection]] = 0
+        pointsToVisit.insert([startPoint, startDirection])
+        checkFields()
+        printMap2(lowestPoints, emptyValue: "#")
         return directions.map {
             lowestPoints[[endPoint, $0]] ?? Int.max
         }.min() ?? -1
+    }
+
+    func printMap2<T>(_ map2: [[Point]: T], emptyValue: String) {
+        for dir in directions {
+            var orderd: [[String]] = []
+            var offsetY = 0
+            var offsetX = 0
+            for (points, value) in map2 {
+                let point = points[0]
+                let direction = points[1]
+                if direction != dir { continue }
+                if point.y < 0, offsetY < abs(point.y) {
+                    let newOffsetY = abs(point.y)
+                    for _ in 0 ..< newOffsetY - offsetY {
+                        orderd.insert([], at: 0)
+                    }
+                    offsetY = newOffsetY
+                }
+                let y = point.y + offsetY
+                while orderd.count <= y {
+                    orderd.append([])
+                }
+                if point.x < 0, offsetX < abs(point.x) {
+                    let newOffsetX = abs(point.x)
+                    for _ in 0 ..< newOffsetX - offsetX {
+                        for currentY in 0 ..< orderd.count {
+                            orderd[currentY].insert("|\(emptyValue)|", at: 0)
+                        }
+                    }
+                    offsetX = newOffsetX
+                }
+                let x = point.x + offsetX
+                while orderd[y].count <= x {
+                    orderd[y].append("|\(emptyValue)|")
+                }
+                orderd[y][x] = "|\(value)|"
+            }
+            printArray2D(orderd)
+        }
     }
 
     func part2() -> Any {
