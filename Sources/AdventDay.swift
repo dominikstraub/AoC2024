@@ -3,10 +3,10 @@
 import Foundation
 
 protocol AdventDay: Sendable {
-  associatedtype Answer = Int
+    associatedtype Answer = String
 
-  /// The day of the Advent of Code challenge.
-  ///
+    /// The day of the Advent of Code challenge.
+    ///
   /// You can implement this property, or, if your type is named with the
   /// day number as its suffix (like `Day01`), it is derived automatically.
   static var day: Int { get }

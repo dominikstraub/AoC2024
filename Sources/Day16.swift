@@ -87,15 +87,15 @@ typealias FieldMap = [Point: Field]
                 var nextBestPoints = currentBestPoints
                 nextBestPoints.insert(nextPoint)
 
-                let currentLowestValues = lowestScore[[nextPoint, nextDirection]]
-                let currentLowestScore = currentLowestValues?.0 ?? Int.max
-                let currentLowestPoints = currentLowestValues?.1 ?? []
-                if nextScore < currentLowestScore {
+                let nextLowestValues = lowestScore[[nextPoint, nextDirection]]
+                let nextLowestScore = nextLowestValues?.0 ?? Int.max
+                let nextLowestPoints = nextLowestValues?.1 ?? []
+                if nextScore < nextLowestScore {
                     lowestScore[[nextPoint, nextDirection]] = (nextScore, nextBestPoints)
                     pointsToVisit.insert([nextPoint, nextDirection])
-                } else if nextScore == currentLowestScore {
-                    let count = currentLowestPoints.count
-                    nextBestPoints.formUnion(currentLowestPoints)
+                } else if nextScore == nextLowestScore {
+                    let count = nextLowestPoints.count
+                    nextBestPoints.formUnion(nextLowestPoints)
                     lowestScore[[nextPoint, nextDirection]] = (nextScore, nextBestPoints)
                     if nextBestPoints.count > count {
                         pointsToVisit.insert([nextPoint, nextDirection])
