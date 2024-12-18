@@ -2,15 +2,22 @@ import Algorithms
 import Foundation
 
 struct Day00: AdventDay {
+    nonisolated init(data: String) {
+        self.data = data
+    }
+
     var data: String
 
-    var entities: [[Int]] {
-        data.split(separator: "\n\n").map {
-            $0.split(separator: "\n").compactMap { Int($0) }
+    func getValues() -> [Point] {
+        return data.split(separator: "\n").compactMap {
+            let parts = $0.split(separator: ",")
+            return Point(Int(parts[0])!, Int(parts[1])!)
         }
     }
 
     func part1() -> Int {
+        let values = getValues()
+        print(values)
         return -1
     }
 

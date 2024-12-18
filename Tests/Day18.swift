@@ -6,23 +6,34 @@ struct Day18Tests {
     let testData = [
         (
             input: """
-            1000
-            2000
-            3000
-
-            4000
-
-            5000
-            6000
-
-            7000
-            8000
-            9000
-
-            10000
+            5,4
+            4,2
+            4,5
+            3,0
+            2,1
+            6,3
+            2,4
+            1,5
+            0,6
+            3,3
+            2,6
+            5,1
+            1,2
+            5,5
+            2,5
+            6,5
+            1,4
+            0,4
+            6,4
+            1,1
+            6,1
+            1,0
+            0,5
+            1,6
+            2,0
 
             """,
-            result1: -1,
+            result1: 22,
             result2: -1
         ),
     ]
@@ -31,7 +42,7 @@ struct Day18Tests {
         for testDataEl in testData {
             if testDataEl.result1 == -1 { continue }
             let challenge = Day18(data: testDataEl.input)
-            #expect(challenge.part1() == testDataEl.result1)
+            await #expect(challenge.part1() == testDataEl.result1)
         }
     }
 

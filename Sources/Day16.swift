@@ -16,9 +16,9 @@ extension Field: CustomStringConvertible {
 
 typealias FieldMap = [Point: Field]
 
-@MainActor var pointsToVisit: Set<[Point]> = []
-@MainActor var lowestScore: [[Point]: (Int, Set<Point>)] = [:]
-@MainActor var map: FieldMap = [:]
+@MainActor private var pointsToVisit: Set<[Point]> = []
+@MainActor private var lowestScore: [[Point]: (Int, Set<Point>)] = [:]
+@MainActor private var map: FieldMap = [:]
 
 @MainActor struct Day16: AdventDay {
     nonisolated init(data: String) {
