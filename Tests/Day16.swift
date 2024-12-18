@@ -52,13 +52,13 @@ struct Day16Tests {
         ),
     ]
 
-     @Test func testPart1() async throws {
-         for testDataEl in testData {
-             if testDataEl.result1 == -1 { continue }
-             let challenge = Day16(data: testDataEl.input)
-             await #expect(challenge.part1() == testDataEl.result1)
-         }
-     }
+    @Test func testPart1() async throws {
+        for testDataEl in testData {
+            if testDataEl.result1 == -1 { continue }
+            let challenge = Day16(data: testDataEl.input)
+            await #expect(challenge.part1() == testDataEl.result1)
+        }
+    }
 
     @Test func testPart2() async throws {
         for testDataEl in testData {

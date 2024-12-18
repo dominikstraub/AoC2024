@@ -203,7 +203,7 @@ typealias FieldMap = [Point: Field]
                 }
             }
         }
-        printSet(totalPoints, value: "O")
+        // printSet(totalPoints, value: "O")
         return totalPoints.count
     }
 }

@@ -195,14 +195,14 @@ import Foundation
         for point in region {
             let fences = findFences(point, region)
             // print("point: \(point), fences:")
-            printGarden(fences)
+            // printGarden(fences)
             allFences.formUnion(fences)
         }
         // print("allFences:")
-        printGarden(allFences)
+        // printGarden(allFences)
         let sides = getSides(allFences)
         // print("sides:")
-        printGarden(sides)
+        // printGarden(sides)
         // print(sides.count)
         return sides.count
     }
@@ -231,7 +231,7 @@ import Foundation
             if sideParts.count > 0 {
                 result.insert(sideParts)
                 // print("side:")
-                printGarden(sideParts)
+                // printGarden(sideParts)
             }
         }
         return result
@@ -281,15 +281,15 @@ import Foundation
     func part2() -> Int {
         let garden = getGarden()
         // print("garden:")
-        printGarden(garden)
+        // printGarden(garden)
         let regions = getRegions(garden)
         var result = 0
-        for (plot, regions2) in regions {
+        for (_, regions2) in regions {
             // print("plot: \(plot), regions2:")
-            printGarden(regions2, plot)
+            // printGarden(regions2, plot)
             for points in regions2 {
                 // print("plot: \(plot), points:")
-                printGarden(points, plot)
+                // printGarden(points, plot)
                 result += points.count * getSideCount(points)
             }
         }
