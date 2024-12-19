@@ -2,6 +2,7 @@ import Algorithms
 import Foundation
 
 @MainActor private var possibleDesignParts: Set<String> = []
+@MainActor private var possibleDesignPartsCount: [String: Int] = [:]
 @MainActor private var notPossibleDesignParts: Set<String> = []
 
 @MainActor struct Day19: AdventDay {
@@ -28,17 +29,17 @@ import Foundation
         if notPossibleDesignParts.contains(design) {
             return false
         }
-        if design.count > 1 {
-            for length in (1 ..< design.count - 1).reversed() {
-                let designPart = String(design[0 ... length])
-                if possibleDesignParts.contains(designPart) {
-                    if checkDesign(String(design[(length + 1)...]), towels: towels) {
-                        possibleDesignParts.insert(design)
-                        return true
-                    }
-                }
-            }
-        }
+        // if design.count > 1 {
+        //     for length in (1 ..< design.count - 1).reversed() {
+        //         let designPart = String(design[0 ... length])
+        //         if possibleDesignParts.contains(designPart) {
+        //             if checkDesign(String(design[(length + 1)...]), towels: towels) {
+        //                 possibleDesignParts.insert(design)
+        //                 return true
+        //             }
+        //         }
+        //     }
+        // }
         for towel in towels where design[0 ..< towel.count] == towel {
             // print("first part matching: \(towel)")
             if design.count == towel.count {
@@ -56,23 +57,76 @@ import Foundation
         return false
     }
 
+    func countDesign(_ design: String, towels: [String]) -> Int {
+        // print(design)
+        // print(towels)
+        if let count = possibleDesignPartsCount[design] {
+            // print("found part: \(design)")
+            return count
+        }
+        if notPossibleDesignParts.contains(design) {
+            return 0
+        }
+        // if design.count > 1 {
+        //     for length in (1 ..< design.count - 1).reversed() {
+        //         let designPart = String(design[0 ... length])
+        //         if let _ = possibleDesignPartsCount[designPart] {
+        //             let count = countDesign(String(design[(length + 1)...]), towels: towels)
+        //             if count > 0 {
+        //                 possibleDesignPartsCount[design] = count
+        //                 return count
+        //             }
+        //         }
+        //     }
+        // }
+        var result = 0
+        for towel in towels where design[0 ..< towel.count] == towel {
+            // print("first part matching: \(towel)")
+            if design.count == towel.count {
+                // print("found part: \(design)")
+                result += 1
+            } else {
+                let count = countDesign(String(design[towel.count...]), towels: towels)
+                if count > 0 {
+                    // print("found part: \(design)")
+                    result += count
+                }
+            }
+        }
+        // print("NOPE: \(design)")
+        if result == 0 {
+            notPossibleDesignParts.insert(design)
+        } else {
+            possibleDesignPartsCount[design] = result
+        }
+        return result
+    }
+
     func part1() -> Int {
         let values = getValues()
         // print(values)
-        var count = 0
+        var result = 0
         for design in values.designs {
             print(design)
             if checkDesign(design, towels: values.towels) {
                 print("possible")
-                count += 1
+                result += 1
             } else {
                 print("NOT possible")
             }
         }
-        return count
+        return result
     }
 
     func part2() -> Int {
-        return -1
+        let values = getValues()
+        // print(values)
+        var result = 0
+        for design in values.designs {
+            let count = countDesign(design, towels: values.towels)
+            print(count)
+            result += count
+        }
+        return result
     }
 }
