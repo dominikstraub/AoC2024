@@ -1,7 +1,7 @@
 import Algorithms
 import Foundation
 
-enum Field: String {
+private enum Field: String {
     case wall = "#"
     case empty = "."
     case start = "S"
@@ -14,7 +14,7 @@ extension Field: CustomStringConvertible {
     }
 }
 
-typealias FieldMap = [Point: Field]
+private typealias FieldMap = [Point: Field]
 
 @MainActor private var pointsToVisit: Set<[Point]> = []
 @MainActor private var lowestScore: [[Point]: (Int, Set<Point>)] = [:]
@@ -34,7 +34,7 @@ typealias FieldMap = [Point: Field]
         Point(-1, 0),
     ]
 
-    func getMap() -> FieldMap {
+    fileprivate func getMap() -> FieldMap {
         var result: FieldMap = [:]
         for (y, row) in data.split(separator: "\n").enumerated() {
             for (x, value) in row.enumerated() {
