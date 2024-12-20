@@ -32,7 +32,7 @@ struct Day20Tests {
         for testDataEl in testData {
             if testDataEl.result1 == -1 { continue }
             let challenge = Day20(data: testDataEl.input)
-            #expect(challenge.part1() == testDataEl.result1)
+            await #expect(challenge.part1() == testDataEl.result1)
         }
     }
 

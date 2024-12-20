@@ -16,7 +16,12 @@ extension Field: CustomStringConvertible {
 
 private typealias FieldMap = [Point: Field]
 
-struct Day20: AdventDay {
+@MainActor private var pointsToVisit: Set<Point> = []
+@MainActor private var pointsVisited: Set<Point> = []
+@MainActor private var lowestTime: [Point: Int] = [:]
+@MainActor private var map: FieldMap = [:]
+
+@MainActor struct Day20: AdventDay {
     nonisolated init(data: String) {
         self.data = data
     }
@@ -51,9 +56,55 @@ struct Day20: AdventDay {
         return result
     }
 
+    func checkFields() {
+        while !pointsToVisit.isEmpty {
+            let nextPoint = pointsToVisit.sorted(by: { lowestTime[$0] ?? Int.max < lowestTime[$1] ?? Int.max }).first!
+            pointsToVisit.remove(nextPoint)
+            visitField(atPoint: nextPoint)
+        }
+    }
+
+    func visitField(atPoint currentPoint: Point) {
+        for nextDirection in directions {
+            let nextPoint = currentPoint + nextDirection
+            let nextField = map[nextPoint]
+            if nextField == nil || nextField == .wall { continue }
+
+            guard let currentTime = lowestTime[currentPoint] else { continue }
+            let nextTime = currentTime + 1
+
+            let nextLowestTime = lowestTime[nextPoint] ?? Int.max
+            if nextTime < nextLowestTime {
+                lowestTime[nextPoint] = nextTime
+                if !pointsVisited.contains(nextPoint) {
+                    pointsToVisit.insert(nextPoint)
+                }
+            }
+        }
+    }
+
     func part1() -> Int {
-        let map = getMap()
+        map = getMap()
         printMap(map, emptyValue: .empty)
+        var startPoint: Point?
+        var endPoint: Point?
+        for (point, field) in map {
+            if field == .start {
+                startPoint = point
+            }
+            if field == .end {
+                endPoint = point
+            }
+        }
+        guard let startPoint else { return -1 }
+        guard let endPoint else { return -1 }
+
+        lowestTime[startPoint] = 0
+        pointsToVisit.insert(startPoint)
+        checkFields()
+        let time = lowestTime[endPoint]
+        print(time!)
+
         return -1
     }
 
