@@ -20,6 +20,9 @@ private typealias FieldMap = [Point: Field]
 @MainActor private var pointsVisited: Set<Point> = []
 @MainActor private var lowestTime: [Point: Int] = [:]
 @MainActor private var map: FieldMap = [:]
+@MainActor private var wallsToCheck: Set<Point> = []
+@MainActor private var cheat: Point?
+@MainActor private var findingWalls = true
 
 @MainActor struct Day20: AdventDay {
     nonisolated init(data: String) {
@@ -68,7 +71,8 @@ private typealias FieldMap = [Point: Field]
         for nextDirection in directions {
             let nextPoint = currentPoint + nextDirection
             let nextField = map[nextPoint]
-            if nextField == nil || nextField == .wall { continue }
+            if nextField == nil { continue }
+            if nextPoint != cheat, nextField == .wall { if findingWalls { wallsToCheck.insert(nextPoint) }; continue }
 
             guard let currentTime = lowestTime[currentPoint] else { continue }
             let nextTime = currentTime + 1
@@ -84,6 +88,14 @@ private typealias FieldMap = [Point: Field]
     }
 
     func part1() -> Int {
+        pointsToVisit = []
+        pointsVisited = []
+        lowestTime = [:]
+        map = [:]
+        wallsToCheck = []
+        cheat = nil
+        findingWalls = true
+
         map = getMap()
         printMap(map, emptyValue: .empty)
         var startPoint: Point?
@@ -102,10 +114,30 @@ private typealias FieldMap = [Point: Field]
         lowestTime[startPoint] = 0
         pointsToVisit.insert(startPoint)
         checkFields()
-        let time = lowestTime[endPoint]
-        print(time!)
+        let initialBestTime = lowestTime[endPoint]
+        print(initialBestTime!)
+        findingWalls = false
 
-        return -1
+        var result = 0
+        while !wallsToCheck.isEmpty {
+            pointsToVisit = []
+            pointsVisited = []
+            lowestTime = [:]
+
+            let wall = wallsToCheck.removeFirst()
+            cheat = wall
+
+            lowestTime[startPoint] = 0
+            pointsToVisit.insert(startPoint)
+            checkFields()
+            let time = lowestTime[endPoint]
+            if time! + 99 < initialBestTime! {
+                print(time!)
+                result += 1
+            }
+        }
+
+        return result
     }
 
     func part2() -> Any {

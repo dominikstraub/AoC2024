@@ -23,7 +23,7 @@ struct Day20Tests {
             ###############
 
             """,
-            result1: 11,
+            result1: 44,
             result2: -1
         ),
     ]
