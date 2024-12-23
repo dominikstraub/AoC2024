@@ -50,14 +50,14 @@ extension PointCheat: Hashable {
 
     var data: String
 
-    let directions: Set<Point> = [
+    private let directions: Set<Point> = [
         Point(0, -1),
         Point(1, 0),
         Point(0, 1),
         Point(-1, 0),
     ]
 
-    fileprivate func getMap() -> FieldMap {
+    private func getMap() -> FieldMap {
         var result: FieldMap = [:]
         for (y, row) in data.split(separator: "\n").enumerated() {
             for (x, value) in row.enumerated() {
@@ -78,7 +78,7 @@ extension PointCheat: Hashable {
         return result
     }
 
-    func checkFields() {
+    private func checkFields() {
         while !pointsToVisit.isEmpty {
             let nextPoint = pointsToVisit.sorted(by: { lowestTime[$0] ?? Int.max < lowestTime[$1] ?? Int.max }).first!
             pointsToVisit.remove(nextPoint)
@@ -86,7 +86,7 @@ extension PointCheat: Hashable {
         }
     }
 
-    func visitField(atPoint currentPoint: Point) {
+    private func visitField(atPoint currentPoint: Point) {
         for nextDirection in directions {
             let nextPoint = currentPoint + nextDirection
             let nextField = map[nextPoint]
@@ -106,14 +106,14 @@ extension PointCheat: Hashable {
         }
     }
 
-    func checkFieldsWithCheats() {
+    private func checkFieldsWithCheats() {
         while !pointsToVisit2.isEmpty {
             let nextPointCheat = pointsToVisit2.removeFirst()
             visitFieldWithCheats(atPointCheat: nextPointCheat)
         }
     }
 
-    fileprivate func visitFieldWithCheats(atPointCheat currentPointCheat: PointCheat) {
+    private func visitFieldWithCheats(atPointCheat currentPointCheat: PointCheat) {
         pointsVisited2.insert(currentPointCheat)
         let currentPoint = currentPointCheat.point
         let currentField = map[currentPoint]
@@ -247,10 +247,6 @@ extension PointCheat: Hashable {
 
         var result = 0
         for cheats in 0 ..< 20 {
-            let endPointCheat = PointCheat(point: endPoint, cheatsLeft: cheats, cheatStart: nil)
-            if let values = lowestTime2[endPointCheat], values.time < initialBestTime! {
-                result += values.variations
-            }
             for (point, _) in map {
                 let endPointCheat = PointCheat(point: endPoint, cheatsLeft: cheats, cheatStart: point)
                 if let values = lowestTime2[endPointCheat], values.time < initialBestTime! {
